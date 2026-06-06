@@ -1,0 +1,82 @@
+# ── Python ──────────────────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*$py.class
+*.pyo
+*.pyd
+
+# ── Distribuicao / empacotamento ────────────────────────────────────
+dist/
+build/
+*.egg-info/
+*.egg
+MANIFEST
+.eggs/
+wheels/
+
+# ── Ambientes virtuais ───────────────────────────────────────────────
+.venv/
+venv/
+env/
+ENV/
+.env
+.env.*
+
+# ── Dependencias instaladas localmente ──────────────────────────────
+Lib/
+Scripts/
+Include/
+pyvenv.cfg
+
+# ── Pytest / cobertura ───────────────────────────────────────────────
+.pytest_cache/
+.coverage
+coverage.xml
+htmlcov/
+*.cover
+.hypothesis/
+
+# ── Type checkers ────────────────────────────────────────────────────
+.mypy_cache/
+.dmypy.json
+dmypy.json
+.pytype/
+.ruff_cache/
+
+# ── Jupyter ──────────────────────────────────────────────────────────
+.ipynb_checkpoints/
+*.ipynb
+
+# ── Outputs gerados pelo projeto ────────────────────────────────────
+output/*
+!output/.gitkeep
+
+# ── IDEs e editores ──────────────────────────────────────────────────
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+*.code-workspace
+.history/
+
+# ── Sistema operacional ──────────────────────────────────────────────
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+Thumbs.db
+ehthumbs.db
+desktop.ini
+$RECYCLE.BIN/
+
+# ── Logs e arquivos temporarios ─────────────────────────────────────
+*.log
+*.tmp
+*.temp
+*.bak
+*.swp
+*.orig
