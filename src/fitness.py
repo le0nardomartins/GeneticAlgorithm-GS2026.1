@@ -5,8 +5,8 @@ Função fitness: avalia a qualidade de uma rota (indivíduo).
 from src.config import (
     POS_OBJETIVO,
     PESO_DISTANCIA, PESO_COLISAO, PESO_FORA_MAPA,
-    PESO_ENERGIA, PESO_PERIGO, PESO_COMPRIMENTO,
-    RECOMPENSA_CHEGAR,
+    PESO_ENERGIA, PESO_PERIGO, PESO_COMPRIMENTO, PESO_REVISITA,
+    RECOMPENSA_CHEGAR, PENALIDADE_DESTRUICAO,
 )
 from src.simulacao import simular_rota
 
@@ -16,24 +16,26 @@ def calcular_fitness(individuo, mapa):
     Calcula o fitness de um indivíduo e retorna também as métricas da rota.
 
     Fórmula:
-        fitness = - PESO_DISTANCIA   x distância_manhattan
-                  - PESO_COLISAO     x colisões
-                  - PESO_FORA_MAPA   x tentativas_fora_mapa
-                  - PESO_ENERGIA     x energia_consumida
-                  - PESO_PERIGO      x áreas_perigosas
-                  - PESO_COMPRIMENTO x passos
-                  + RECOMPENSA_CHEGAR   (somente se chegou ao objetivo)
+        fitness = - PESO_DISTANCIA      × distância_manhattan
+                  - PESO_COLISAO        × colisões
+                  - PESO_FORA_MAPA      × tentativas_fora_mapa
+                  - PESO_ENERGIA        × energia_consumida
+                  - PESO_PERIGO         × áreas_perigosas
+                  - PESO_COMPRIMENTO    × passos
+                  - PENALIDADE_DESTRUICAO  (se destruído)
+                  + RECOMPENSA_CHEGAR      (se chegou ao objetivo)
 
     Quanto MAIOR o valor, MELHOR a rota.
 
     Componentes:
-    - Distância:   pressiona o AG a aproximar o robô do destino.
-    - Chegada:     bônus dominante que prioriza rotas completas.
-    - Colisões:    representam dano físico → penalidade alta.
+    - Distância:    gradiente que puxa o robô em direção ao objetivo.
+    - Chegada:      bônus dominante — chegar sempre supera não chegar.
+    - Destruído:    penalidade pesada — missão encerrada por dano total.
+    - Colisões:     dano físico ao robô → penalidade alta.
     - Fora do mapa: rota inválida → penalidade moderada.
-    - Energia:     missão espacial exige frugalidade → penalidade leve.
-    - Perigo:      risco sistêmico à integridade do robô.
-    - Comprimento: desempata rotas de mesma qualidade, preferindo as curtas.
+    - Energia:      missão espacial exige frugalidade → penalidade leve.
+    - Perigo:       cada célula perigosa atravessada aumenta risco futuro.
+    - Comprimento:  desempata rotas de mesma qualidade, preferindo as curtas.
     """
     stats = simular_rota(individuo, mapa)
 
@@ -47,6 +49,10 @@ def calcular_fitness(individuo, mapa):
     fitness -= PESO_ENERGIA      * stats["energia"]
     fitness -= PESO_PERIGO       * stats["perigos"]
     fitness -= PESO_COMPRIMENTO  * stats["passos"]
+    fitness -= PESO_REVISITA     * stats["revisitas"]
+
+    if stats["destruido"]:
+        fitness -= PENALIDADE_DESTRUICAO
 
     if stats["chegou"]:
         fitness += RECOMPENSA_CHEGAR

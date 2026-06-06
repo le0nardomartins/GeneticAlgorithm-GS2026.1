@@ -22,18 +22,21 @@ Execute a partir da raiz do projeto:
 python main.py
 ```
 
-A cada execução a pasta `output/` é limpa automaticamente e os novos arquivos são gerados.
+A cada execução a pasta `output/` é limpa automaticamente e o novo arquivo é gerado.
 
 ---
 
-## Imagens geradas
+## Imagem gerada
 
-Todos os arquivos são salvos em `output/`.
+O projeto produz um único arquivo em `output/`:
 
-### `mapa_inicial.png`
+### `painel_completo.png`
 
-Mostra o mapa 20×20 do ambiente extraterrestre antes de qualquer simulação.
-Cada cor representa um tipo de terreno:
+Painel unificado com 3 visualizações em uma só imagem:
+
+**Linha superior esquerda — Mapa do Ambiente**
+
+Mostra o mapa 20×20 do terreno extraterrestre antes de qualquer simulação.
 
 | Cor | Tipo |
 |---|---|
@@ -46,22 +49,22 @@ Cada cor representa um tipo de terreno:
 
 ---
 
-### `melhor_rota.png`
+**Linha superior direita — Melhor Rota**
 
-Mostra o mesmo mapa com a melhor rota encontrada pelo Algoritmo Genético desenhada sobre ele.
+Mostra a melhor rota encontrada pelo Algoritmo Genético desenhada sobre o mapa.
 
 - **Linha azul** — caminho percorrido pelo robô
-- **Setas** — indicam a direção de cada movimento
+- **Setas** — direção de cada movimento
 - **Pontos azuis claros** — células visitadas ao longo do trajeto
 - **Círculo verde (S)** — ponto de partida
 - **Círculo dourado (G)** — objetivo da missão
 - **Círculo magenta (R)** — posição final caso o robô não tenha alcançado o objetivo
 
-O título da imagem exibe o fitness, o número de passos, a energia consumida e se o objetivo foi alcançado.
+O título exibe o fitness, o número de passos, a energia consumida e se o objetivo foi alcançado.
 
 ---
 
-### `evolucao_fitness.png`
+**Linha inferior — Evolução do Fitness**
 
 Mostra como a qualidade das rotas evoluiu ao longo das gerações.
 

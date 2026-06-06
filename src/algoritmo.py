@@ -36,12 +36,13 @@ def _banner_inicio():
 
 
 def _imprimir_geracao(gen, fit_melhor, fit_media, stats):
-    dist = (abs(stats["posicao_final"][0] - POS_OBJETIVO[0]) +
-            abs(stats["posicao_final"][1] - POS_OBJETIVO[1]))
-    chegou = "SIM ✓" if stats["chegou"] else "NAO"
+    dist   = (abs(stats["posicao_final"][0] - POS_OBJETIVO[0]) +
+              abs(stats["posicao_final"][1] - POS_OBJETIVO[1]))
+    status = "SIM ✓" if stats["chegou"] else ("DESTRUIDO" if stats["destruido"] else "NAO")
+    dano   = f"{stats['nivel_dano']*100:.0f}%"
     print(f"  {gen:>4}  {fit_melhor:>11.2f}  {fit_media:>10.2f}  "
           f"{stats['colisoes']:>9}  {stats['energia']:>7}  "
-          f"{dist:>4}  {chegou}")
+          f"{dist:>4}  {status}  dano={dano}")
 
 
 def _banner_resultado(fitness, stats, geracao):
@@ -59,7 +60,9 @@ def _banner_resultado(fitness, stats, geracao):
     print(f"  Tentativas fora do mapa: {stats['fora_mapa']}")
     print(f"  Passos executados      : {stats['passos']}")
     print(f"  Terrenos irregulares   : {stats['irregulares']}")
-    print(f"  Áreas perigosas        : {stats['perigos']}")
+    print(f"  Areas perigosas        : {stats['perigos']}")
+    print(f"  Robo destruido         : {'SIM ✗' if stats['destruido'] else 'NAO ✓'}")
+    print(f"  Nivel de dano final    : {stats['nivel_dano']*100:.0f}%")
     print("=" * 65)
 
 
