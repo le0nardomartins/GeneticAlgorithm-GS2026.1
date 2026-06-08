@@ -31,7 +31,7 @@ OBSTACULO = 1  # bloqueado
 IRREGULAR = 2  # passa, mas gasta mais energia e desgasta o robô
 PERIGO    = 3  # risco de destruição
 
-QTD_OBSTACULOS  = 60
+QTD_OBSTACULOS  = 80
 QTD_IRREGULARES = 55
 QTD_PERIGOS     = 40
 
