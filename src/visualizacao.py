@@ -93,17 +93,25 @@ def _desenhar_rota(ax, mapa, stats, fitness, geracao):
                 fontsize=8, fontweight="bold", color="white", zorder=8)
 
     status = "OBJETIVO ALCANÇADO ✓" if stats["chegou"] else "Objetivo NÃO alcançado ✗"
-    titulo = (f"Melhor Rota — Geração {geracao}  |  Fitness: {fitness:.1f}\n"
-              f"Passos: {stats['passos']}  |  Energia: {stats['energia']}  |  {status}")
-    ax.set_title(titulo, fontsize=11, fontweight="bold", pad=10)
+    titulo = (
+        "Rover Genetic Navigator — Otimização por Algoritmo Genético\n"
+        f"Melhor Rota  ·  Geração {geracao}  ·  Fitness: {fitness:.1f}\n"
+        f"Passos: {stats['passos']}  ·  Energia: {stats['energia']}  ·  {status}"
+    )
+    ax.set_title(titulo, fontsize=11, fontweight="bold", pad=10, linespacing=1.5)
 
     legenda = _legenda_base()
     legenda.append(mpatches.Patch(color="deepskyblue",
                                   label=f"Rota ({stats['passos']} passos)"))
     if not stats["chegou"]:
         legenda.append(mpatches.Patch(color="magenta", label="Posição final (R)"))
-    ax.legend(handles=legenda, loc="upper right",
-              fontsize=7.5, framealpha=0.9, edgecolor="gray")
+    # Legenda abaixo do mapa, fora da área da grade
+    ax.legend(handles=legenda,
+              loc="upper center",
+              bbox_to_anchor=(0.5, -0.06),
+              ncol=4,
+              fontsize=8, framealpha=0.95, edgecolor="gray",
+              borderaxespad=0)
 
 
 def _desenhar_evolucao(ax, historico_melhor, historico_media, geracao_melhor):
@@ -149,11 +157,11 @@ def plotar_painel_completo(mapa, stats, fitness, geracao_melhor,
       Linha superior : mapa com melhor rota
       Linha inferior : evolução do fitness (largura total)
     """
-    fig = plt.figure(figsize=(13, 16))
+    fig = plt.figure(figsize=(13, 17))
     gs  = gridspec.GridSpec(
         2, 1, figure=fig,
-        height_ratios=[1.5, 0.85],
-        hspace=0.32,
+        height_ratios=[1.6, 0.75],
+        hspace=0.48,
     )
 
     ax_rota   = fig.add_subplot(gs[0])
@@ -162,9 +170,7 @@ def plotar_painel_completo(mapa, stats, fitness, geracao_melhor,
     _desenhar_rota(ax_rota, mapa, stats, fitness, geracao_melhor)
     _desenhar_evolucao(ax_evolut, historico_melhor, historico_media, geracao_melhor)
 
-    fig.suptitle(
-        "Rover Genetic Navigator — Otimização por Algoritmo Genético",
-        fontsize=14, fontweight="bold", y=0.997,
-    )
+    # sem suptitle — título já está no axes; margens compactas sem espaço à direita
+    fig.subplots_adjust(left=0.08, right=0.97, top=0.97, bottom=0.04)
 
     return fig

@@ -1,6 +1,4 @@
-"""
-Simulação do robô seguindo uma rota (indivíduo) sobre o mapa.
-"""
+"""Simula o robô percorrendo uma rota e coleta as métricas de desempenho."""
 
 import random
 
@@ -8,46 +6,33 @@ from src.config import (
     TAMANHO_MAPA, POS_INICIAL, POS_OBJETIVO,
     OBSTACULO, IRREGULAR, PERIGO,
     MOVIMENTOS, CUSTO_ENERGIA,
-    INCREMENTO_DANO,
+    INCREMENTO_DANO, FATOR_ESCALA_DANO,
+    INCREMENTO_DESGASTE, FATOR_ESCALA_IRREGULAR,
 )
+
+_GL, _GC = POS_OBJETIVO
 
 
 def simular_rota(individuo, mapa):
-    """
-    Executa a sequência de movimentos do indivíduo e coleta métricas.
-
-    Regras de movimento:
-    - Sair do mapa   → fora_mapa += 1, movimento ignorado.
-    - Obstáculo      → colisoes += 1, movimento ignorado.
-    - Célula já visitada → revisitas += 1 (movimento executado, mas penalizado).
-    - Objetivo       → simulação encerrada imediatamente.
-
-    Sistema de dano (células de perigo):
-    - Ao pisar em PERIGO, primeiro verifica destruição com chance = nivel_dano.
-    - Se sobreviver, acumula INCREMENTO_DANO (0.25 por célula).
-    - Destruição encerra a missão imediatamente (destruido = True).
-
-    Progressão de risco:
-        1ª célula de perigo → 0%  de destruição → sai com 25% de dano
-        2ª célula de perigo → 25% de destruição → sai com 50% de dano
-        3ª célula de perigo → 50% de destruição → sai com 75% de dano
-        4ª célula de perigo → 75% de destruição → sai com 100% de dano
-        5ª célula de perigo → destruição garantida
-    """
+    """Executa os genes do indivíduo e retorna todas as métricas da rota."""
     linha, coluna = POS_INICIAL
     caminho   = [(linha, coluna)]
-    visitadas = {(linha, coluna)}   # conjunto de células já pisadas
+    visitadas = {(linha, coluna)}
 
-    colisoes    = 0
-    fora_mapa   = 0
-    energia     = 0
-    irregulares = 0
-    perigos     = 0
-    passos      = 0
-    revisitas   = 0
-    chegou      = False
-    destruido   = False
-    nivel_dano  = 0.0   # 0.0 = intacto, 1.0 = completamente destruído
+    colisoes               = 0
+    fora_mapa              = 0
+    energia                = 0
+    irregulares            = 0
+    perigos                = 0
+    custo_perigo_ponderado    = 0.0
+    custo_irregular_ponderado = 0.0
+    passos                 = 0
+    revisitas              = 0
+    passos_regressivos     = 0
+    chegou                 = False
+    destruido              = False
+    nivel_dano             = 0.0  # sobe com zonas de perigo, pode causar destruição
+    nivel_desgaste         = 0.0  # sobe com terreno irregular, só aumenta o custo
 
     for gene in individuo:
         dl, dc = MOVIMENTOS[gene]
@@ -63,12 +48,15 @@ def simular_rota(individuo, mapa):
             colisoes += 1
             continue
 
+        dist_antes = abs(linha - _GL) + abs(coluna - _GC)
         linha, coluna = nl, nc
         passos += 1
         caminho.append((linha, coluna))
         energia += CUSTO_ENERGIA.get(tipo, 1)
 
-        # Contar revisita antes de registrar a célula como visitada
+        if abs(linha - _GL) + abs(coluna - _GC) >= dist_antes:
+            passos_regressivos += 1
+
         if (linha, coluna) in visitadas:
             revisitas += 1
         else:
@@ -76,9 +64,14 @@ def simular_rota(individuo, mapa):
 
         if tipo == IRREGULAR:
             irregulares += 1
+            # Custo cresce levemente a cada célula irregular acumulada
+            custo_irregular_ponderado += 1.0 + nivel_desgaste * FATOR_ESCALA_IRREGULAR
+            nivel_desgaste = min(1.0, nivel_desgaste + INCREMENTO_DESGASTE)
 
         elif tipo == PERIGO:
             perigos += 1
+            # Robô já danificado paga muito mais por entrar em nova zona de risco
+            custo_perigo_ponderado += 1.0 + nivel_dano * FATOR_ESCALA_DANO
             if random.random() < nivel_dano:
                 destruido = True
                 break
@@ -89,16 +82,20 @@ def simular_rota(individuo, mapa):
             break
 
     return {
-        "posicao_final": (linha, coluna),
-        "caminho":        caminho,
-        "colisoes":       colisoes,
-        "fora_mapa":      fora_mapa,
-        "energia":        energia,
-        "irregulares":    irregulares,
-        "perigos":        perigos,
-        "passos":         passos,
-        "revisitas":      revisitas,
-        "chegou":         chegou,
-        "destruido":      destruido,
-        "nivel_dano":     nivel_dano,
+        "posicao_final":             (linha, coluna),
+        "caminho":                    caminho,
+        "colisoes":                   colisoes,
+        "fora_mapa":                  fora_mapa,
+        "energia":                    energia,
+        "irregulares":                irregulares,
+        "perigos":                    perigos,
+        "custo_perigo_ponderado":     custo_perigo_ponderado,
+        "custo_irregular_ponderado":  custo_irregular_ponderado,
+        "passos":                     passos,
+        "revisitas":                  revisitas,
+        "passos_regressivos":         passos_regressivos,
+        "chegou":                     chegou,
+        "destruido":                  destruido,
+        "nivel_dano":                 nivel_dano,
+        "nivel_desgaste":             nivel_desgaste,
     }

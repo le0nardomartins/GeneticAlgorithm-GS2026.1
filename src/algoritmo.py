@@ -1,6 +1,4 @@
-"""
-Loop principal do Algoritmo Genético e utilitários de impressão.
-"""
+"""Loop principal do Algoritmo Genético."""
 
 from copy import deepcopy
 
@@ -14,8 +12,6 @@ from src.individuo  import gerar_populacao
 from src.fitness    import calcular_fitness
 from src.operadores import selecionar_pais, aplicar_crossover, aplicar_mutacao
 
-
-# ── Utilitários de impressão ────────────────────────────────────────
 
 def _banner_inicio():
     print("\n" + "=" * 65)
@@ -63,26 +59,12 @@ def _banner_resultado(fitness, stats, geracao):
     print(f"  Areas perigosas        : {stats['perigos']}")
     print(f"  Robo destruido         : {'SIM ✗' if stats['destruido'] else 'NAO ✓'}")
     print(f"  Nivel de dano final    : {stats['nivel_dano']*100:.0f}%")
+    print(f"  Nivel de desgaste      : {stats['nivel_desgaste']*100:.0f}%")
     print("=" * 65)
 
 
-# ── Loop principal ──────────────────────────────────────────────────
-
 def executar_algoritmo_genetico(mapa):
-    """
-    Executa o Algoritmo Genético completo.
-
-    Fluxo por geração:
-        1. Avaliar fitness de todos os indivíduos
-        2. Preservar a elite (elitismo direto)
-        3. Selecionar pais por torneio
-        4. Gerar filhos por crossover e mutação
-        5. Substituir a população
-        6. Registrar estatísticas
-
-    Retorna: melhor indivíduo, suas métricas, histórico de fitness e
-             geração em que a melhor solução foi encontrada.
-    """
+    """Roda todas as gerações e retorna o melhor indivíduo encontrado."""
     _banner_inicio()
 
     populacao = gerar_populacao()
@@ -97,12 +79,10 @@ def executar_algoritmo_genetico(mapa):
 
     for geracao in range(NUM_GERACOES):
 
-        # Avaliar toda a população
         resultados = [calcular_fitness(ind, mapa) for ind in populacao]
         fitnesses  = [r[0] for r in resultados]
         stats_pop  = [r[1] for r in resultados]
 
-        # Estatísticas da geração
         idx_melhor   = max(range(len(fitnesses)), key=lambda i: fitnesses[i])
         fit_melhor   = fitnesses[idx_melhor]
         fit_media    = sum(fitnesses) / len(fitnesses)
@@ -111,7 +91,6 @@ def executar_algoritmo_genetico(mapa):
         historico_melhor.append(fit_melhor)
         historico_media.append(fit_media)
 
-        # Atualizar melhor global
         if fit_melhor > melhor_fit_global:
             melhor_fit_global   = fit_melhor
             melhor_ind_global   = deepcopy(populacao[idx_melhor])
@@ -121,11 +100,10 @@ def executar_algoritmo_genetico(mapa):
         if (geracao + 1) % 10 == 0 or geracao == 0:
             _imprimir_geracao(geracao + 1, fit_melhor, fit_media, stats_melhor)
 
-        # Elitismo: os melhores passam direto para a próxima geração
+        # Os melhores da geração passam direto para a próxima (elitismo)
         ordem = sorted(range(len(fitnesses)), key=lambda i: fitnesses[i], reverse=True)
         elite = [deepcopy(populacao[i]) for i in ordem[:ELITISMO]]
 
-        # Gerar nova população via seleção → crossover → mutação
         nova_pop = elite[:]
         while len(nova_pop) < TAMANHO_POPULACAO:
             pai1 = selecionar_pais(populacao, fitnesses)

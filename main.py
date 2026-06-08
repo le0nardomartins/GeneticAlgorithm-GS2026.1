@@ -1,6 +1,8 @@
 import os
 import glob
 import numpy as np
+import matplotlib
+matplotlib.use("Agg")   # renderiza sem abrir janela
 import matplotlib.pyplot as plt
 
 from src.config import LIVRE, OBSTACULO, IRREGULAR, PERIGO, OUTPUT_DIR
@@ -56,9 +58,10 @@ def main():
     fig.savefig(caminho, dpi=150, bbox_inches="tight")
     print(f"      Salvo: {caminho}")
 
-    # [5] Exibir
-    print("\n[5/5] Exibindo painel...")
-    plt.show()
+    # [5] Abrir imagem no visualizador padrão do sistema
+    print("\n[5/5] Abrindo imagem...")
+    plt.close(fig)
+    os.startfile(os.path.abspath(caminho))
 
     print(f"\n  Arquivo salvo em: {OUTPUT_DIR}/painel_completo.png\n")
 
